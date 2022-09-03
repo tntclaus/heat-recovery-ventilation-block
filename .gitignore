@@ -1,2 +1,7 @@
+stls/
+tmp/
+bom/
+openscad.echo
+openscad.log
 *.3mf
 *.stl

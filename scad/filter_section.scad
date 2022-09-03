@@ -5,6 +5,7 @@ include <square_vent_channels.scad>
 
 include <config.scad>
 
+function inside_type(type, wth = PRINTED_WALL_THICKNESS*2+1) = [str("square_vent_",type[2]-wth,"x",type[3]-wth),"",type[2]-wth,type[3]-wth,type[4]-wth,type[5]-wth,type[6]+1];
 
 module channel_cap_model(type, wall_thickness, length) {
     w = square_vent_channel_width(type) + wall_thickness * 2;
@@ -12,6 +13,7 @@ module channel_cap_model(type, wall_thickness, length) {
     w_i = square_vent_channel_width_inner(type) - wall_thickness * 2;
     h_i = square_vent_channel_heigth_inner(type) - wall_thickness * 2;
 
+    echo(w);
     difference() {
         rounded_cube_xy([w, h, length], r = 2, xy_center = true, z_center = true);
         translate_z(2)
@@ -47,7 +49,7 @@ module air_filter_holder_assembly(type) {
         rotate([180, 0, 0])
             air_filter_holder_side(type);
 
-        air_filter_holder_middle(type, wall_thickness = PRINTED_WALL_THICKNESS, length = 32);
+        air_filter_holder_middle(type, length = 32);
     }
 }
 
@@ -59,7 +61,25 @@ module air_filter_holder_assembly(type) {
 * Толщина 20 мм
 */
 module air_filter_cassette_assembly(type) {
+    inside_type = inside_type(square_vent110x55);
+
+    air_filter_cassette_top(inside_type);
+    vflip()
+    air_filter_cassette_bottom(inside_type);
 }
+
+module air_filter_cassette_top(type) {
+    stl(str("ABS_air_filter_cassette_top_", square_vent_channel_fun_name(type)));
+    channel_cap_model(type, PRINTED_WALL_THICKNESS, 31.8);
+}
+
+module air_filter_cassette_bottom(type) {
+    stl(str("ABS_air_filter_cassette_bottom_", square_vent_channel_fun_name(type)));
+
+    translate_z(-31.8/2+7.5/2)
+    square_vent_channel_model(type, 5);
+}
+
 
 module air_filter_holder_side(type) {
     stl(str("ABS_air_filter_holder_side_", square_vent_channel_fun_name(type)));
@@ -69,13 +89,17 @@ module air_filter_holder_side(type) {
     channel_cap_model(type, wall_thickness, length);
 }
 
-module air_filter_holder_middle(type, wall_thickness, length) {
+module air_filter_holder_middle(type, length) {
+    wall_thickness = PRINTED_WALL_THICKNESS;
+
     w_o = square_vent_channel_width(type) + wall_thickness * 2;
     h_o = square_vent_channel_heigth(type) + wall_thickness * 2;
     w = square_vent_channel_width(type);
     h = square_vent_channel_heigth(type);
 
-    stl(str("ABS_air_filter_holder_middle_", square_vent_channel_fun_name(type)));
+    stl(str(
+    "ABS_air_filter_holder_middle_", square_vent_channel_fun_name(type), "_",
+    "l", length));
 
     difference() {
         rounded_cube_xy([w_o, h_o, length], r = 2, xy_center = true, z_center = true);
@@ -84,4 +108,36 @@ module air_filter_holder_middle(type, wall_thickness, length) {
         translate([0,h,0])
         cube([w, h*2, length], center = true);
     }
+}
+
+
+/***
+ ***
+ *** Генераторы STL
+ ***
+ ***/
+module ABS_air_filter_holder_middle_square_vent_110x55_l32_stl() {
+    air_filter_holder_middle(square_vent110x55, length = 32);
+}
+
+module ABS_air_filter_holder_side_square_vent_110x55_stl() {
+    air_filter_holder_side(square_vent110x55);
+}
+
+
+module ABS_mesh_filter_cap_square_vent_110x55_stl() {
+    mesh_filter(square_vent110x55);
+}
+
+module ABS_air_filter_cassette_top_square_vent_105x50_stl() {
+    type = square_vent110x55;
+    inside_type = inside_type(square_vent110x55);
+    air_filter_cassette_top(inside_type);
+}
+
+
+module ABS_air_filter_cassette_bottom_square_vent_105x50_stl(){
+    type = square_vent110x55;
+    inside_type = inside_type(square_vent110x55);
+    air_filter_cassette_bottom(inside_type);
 }
