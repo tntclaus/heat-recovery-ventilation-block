@@ -1,21 +1,20 @@
 include <NopSCADlib/utils/core/core.scad>
 include <NopSCADlib/utils/core/rounded_rectangle.scad>
 
-
-
-HEIGTH = 60-3;
-WIDTH = 204-3;
+use <square_vent_channel.scad>
 
 TUBE_LENGTH = 1000;
 
 TUBE_DIA = 10;
-TUBE_H_SPACING = 1.5;
+TUBE_H_SPACING = 2;
 TUBE_V_SPACING = 0.2;
 TUBE_WALL = 1;
 
 
 SQUARE_TUBE_OUT_H = 55.5;
 SQUARE_TUBE_OUT_W = 110.5;
+
+CARTRIDGE_H = 6;
 
 
 module tube_profile(dia, wall_th) {
@@ -37,59 +36,52 @@ module tube(length, dia, wall_th) {
             }
 }
 
-function HC() = floor(WIDTH / (TUBE_DIA + TUBE_H_SPACING));
-function HS() = (WIDTH - (HC() * TUBE_DIA)) / HC() + TUBE_DIA;
+function HC(type) = floor(square_vent_channel_width(type) / (TUBE_DIA + TUBE_H_SPACING));
+function HS(type) = (square_vent_channel_width(type) - (HC(type) * TUBE_DIA)) / HC(type) + TUBE_DIA;
 
-function VC() = floor(HEIGTH / (TUBE_DIA + TUBE_V_SPACING));
-function VS() = (HEIGTH - (VC() * TUBE_DIA)) / VC() + TUBE_DIA;
+function VC(type) = floor(square_vent_channel_heigth(type) / (TUBE_DIA + TUBE_V_SPACING));
+function VS(type) = (square_vent_channel_heigth(type) - (VC(type) * TUBE_DIA)) / VC(type) + TUBE_DIA;
 
-module place_tubes() {
-    hs = HS();
-    vs = VS();
-    vc = VC();
+module place_tubes(type) {
+    hs = HS(type);
+    vs = VS(type);
+    vc = VC(type);
 
-    z_arr = [for (z = [vs / 2 : vs : HEIGTH - vs / 2]) z];
+    z_arr = [for (z = [vs / 2 : vs : square_vent_channel_heigth(type) - vs / 2]) z];
 
 //    echo("hs", z_arr);
-    translate([- WIDTH / 2, - HEIGTH / 2, 0])
+    translate([- square_vent_channel_width(type) / 2, - square_vent_channel_heigth(type) / 2, 0])
         for (z = [0 : vc - 1]) {
             translate([0, z_arr[z], 0])
                 if (z % 2 == 0) {
-                    for (x = [hs / 2 : hs: WIDTH - hs / 2])
+                    for (x = [hs / 2 : hs: square_vent_channel_width(type) - hs / 2])
                     translate([x, 0, 0])
                         children();
                 } else {
-                    for (x = [hs / 2 : hs: WIDTH - hs / 2 - HS()])
-                    translate([x + HS() / 2, 0, 0])
+                    for (x = [hs / 2 : hs: square_vent_channel_width(type) - hs / 2 - HS(type)])
+                    translate([x + HS(type) / 2, 0, 0])
                         children();
                 }
         }
 }
 
-module tubes_assemby(length) {
+module tubes_assemby(type, length) {
     rotate([90, 0, 0])
-        place_tubes()
+        place_tubes(type)
+//        cylinder(d = 10, h = 10);
         tube(length = length, dia = TUBE_DIA, wall_th = TUBE_WALL);
 }
 
-module tubes_cartridge() {
-    stl("ABS_tubes_cartridge");
+module tubes_cartridge(type) {
+    stl(str("ABS_recuperator_tubes_cartridge_",square_vent_channel_width(type),"x",square_vent_channel_heigth(type)));
 
-    h = 6;
+    h = CARTRIDGE_H;
     rotate([90, 0, 0])
         //    render()
         difference() {
             translate_z(h / 2)
-            rounded_cube_xy([WIDTH, HEIGTH, h - .1], r=2, xy_center = true);
-            place_tubes(){
-//                hull() {
-                    translate_z(h)
-                    cylinder(d = TUBE_DIA * 1.8, h = .1);
-//                    translate_z(5)
-//                    cylinder(d = TUBE_DIA-TUBE_WALL*2, h = .1);
-//                }
-//                translate_z(5)
-//                cylinder(d = TUBE_DIA-TUBE_WALL*2, h = h);
+            rounded_cube_xy([square_vent_channel_width(type), square_vent_channel_heigth(type), h - .1], r=2, xy_center = true);
+            place_tubes(type){
                 cylinder(d = TUBE_DIA, h = h*2);
             }
         }
@@ -97,22 +89,22 @@ module tubes_cartridge() {
 
 //use <under_window.scad>
 
-module tube_cross_section() {
+module tube_cross_section(type) {
     difference() {
         union() {
-            cube([3, WIDTH*1.2,HEIGTH+2], center = true);
+            cube([3, square_vent_channel_width(type)*1.2,square_vent_channel_heigth(type)+2], center = true);
             translate([-10,0,0])
-            cube([20,WIDTH,HEIGTH], center = true);
+            cube([20,square_vent_channel_width(type),square_vent_channel_heigth(type)], center = true);
         }
         translate([0,0,0])
-        cube([140,WIDTH-4,HEIGTH-4], center = true);
+        cube([140,square_vent_channel_width(type)-4,square_vent_channel_heigth(type)-4], center = true);
     }
 }
 
 
-module recuparator_section_assembly() {
-    hc = HC();
-    vc = VC();
+module recuparator_section_assembly(type, hide = true) {
+    hc = HC(type);
+    vc = VC(type);
 
     total = hc * vc - vc / 2;
 
@@ -121,24 +113,26 @@ module recuparator_section_assembly() {
     space_out = 3.14 * pow((TUBE_DIA / 2), 2) * total;
     space_in = 3.14 * pow(((TUBE_DIA - 2) / 2), 2) * total;
 
-//    tubes_assemby(TUBE_LENGTH);
+    tubes_assemby(type, TUBE_LENGTH);
 
-//    translate([-WIDTH/2, TUBE_LENGTH/2-WIDTH/2-20])
+//    translate([-square_vent_channel_width(type)/2, TUBE_LENGTH/2-square_vent_channel_width(type)/2-20])
 //    tube_cross_section();
 
-    //    translate([0, - TUBE_LENGTH / 2, 0])
-    //        tubes_cartridge();
-        translate([0, TUBE_LENGTH / 2-2, 0])
-            mirror([0,1,0])
-            tubes_cartridge();
+    if(hide) {} else {
+        translate([0, - TUBE_LENGTH / 2+CARTRIDGE_H*1.5, 0])
+            tubes_cartridge(type);
+        translate([0, TUBE_LENGTH / 2-CARTRIDGE_H*1.5, 0])
+            mirror([0, 1, 0])
+                tubes_cartridge(type);
+    }
 
-    echo("count", total, "in/outlet", 51 * 111, "out of tubes", WIDTH * HEIGTH - space_out, "in", space_in);
+    echo("count", total, "in/outlet", 51 * 111, "out of tubes", square_vent_channel_width(type) * square_vent_channel_heigth(type) - space_out, "in", space_in);
 
 
 
     //    tube(1000,);
 }
 
-recuparator_section_assembly();
+
 
 
