@@ -184,7 +184,7 @@ module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5
     square_vent_channel_fun_name(channel_out), "_",
     "h", h, "_",
     "a", a, "_",
-    "e", a, "_"
+    "e", expand
     );
     stl(name);
 
