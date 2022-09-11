@@ -8,12 +8,7 @@ WINDOW_DEPTH = 300;
 WINDOW_HEIGTH = 120;
 AVAILABLE_DEPTH = 550;
 
-square_vent103x49 = change_type(square_vent110x55, dw = - 4, dh = - 3);
-square_vent114x59 = change_type(square_vent110x55, dw = 4, dh = 4);
-square_vent88x80 = change_type(square_vent80x80, dw = 8, dh = 0);
-square_vent42x80 = change_type(square_vent40x80, dw = 2, dh = 0);
 
-square_vent170x80 = ["square_vent_170x80", "Канал плоский DIY (170x80)", 174, 84, 170, 80, 8];
 
 module draw_window() {
 
@@ -49,19 +44,33 @@ module recuperator_assembly() {
         tj_shift = 500 - tjw / 2 + off;
 
 
-        color("white")
-            translate([- tj_shift - 52, 0, 0])
+        // на улицу
+        translate([- tj_shift - 75, 0, 0]) {
+            color("white")
                 rotate([90, 0, 0])
                     square_vent_channel_t_joint_custom(
                     square_vent154x80_t_joint,
                     square_vent42x80,
-                    square_vent154x80_t_joint, cut_top = true, extra_walls = [15, 35, 10]);
+                    square_vent154x80_t_joint, cut_top = true, extra_walls = [15, 40, 10]);
 
+            // переходник выдува на 110х55
+            translate([- 60, 0, 0])
+                rotate([- 90, - 0, - 90])
+                    t_joint_166x92_to_114x59_adaptor();
+
+            translate([0,145,0])
+            rotate([90,0,0])
+                square_vent_channel_adaptor(square_vent50x87, square_vent110x55, h = 50);
+
+        }
+
+        // теплообменник
         rotate([0, 0, 90])
             recuparator_section_assembly(
             change_type(square_vent154x80_t_joint, dw = - 2, dh = - 2)
             );
 
+        // в помещение
         translate([tj_shift + 45, 0, 0]) {
             rotate([- 90, 0, 0])
                 color("green")
@@ -74,9 +83,13 @@ module recuperator_assembly() {
                     square_vent_channel_adaptor(square_vent114x59, square_vent170x80, 40, expand = 15);
 
             color("red")
-            translate([0, - 165, 0])
-                rotate([- 90, 0, 0])
-                    air_filter_cassette_top(square_vent170x80);
+                translate([0, - 165, 0])
+                    rotate([- 90, 0, 0])
+                        air_filter_cassette_top(square_vent170x80);
+
+            translate([100, 0, 0])
+            rotate([ 90, - 0, - 90])
+                t_joint_166x92_to_114x59_adaptor();
         }
     }
 }
@@ -112,15 +125,13 @@ module ventilation_assembly() {
 
     translate([- 434, 145, 0])
         rotate([90, 0, 0]) {
-            square_vent_channel_adaptor(
-            change_type(square_vent42x80, dw = 4, dh = 3), square_vent103x49, h = 50);
 
             translate([0, 0, 50])
                 fan_inblower_assembly(square_vent40x80);
 
         }
 
-    translate([14, 0, 0])
+    translate([37, 0, 0])
         recuperator_assembly();
 
 
@@ -175,11 +186,14 @@ module ABS_square_vent_channel_adaptor_square_vent_114x59_2_square_vent_170x80_h
     square_vent_channel_adaptor(square_vent114x59, square_vent170x80, h = 40, expand = 15);
 }
 
-module ABS_square_vent_channel_adaptor_square_vent_50x87_2_square_vent_106x52_h50_a0_e5_stl() {
-    cube(10);
-//    square_vent_channel_adaptor(square_vent114x59, square_vent170x80, h = 40, expand = 15);
+module ABS_square_vent_channel_adaptor_square_vent_50x87_2_square_vent_110x55_h50_a0_e5_stl() {
+    square_vent_channel_adaptor(change_type(square_vent42x80, dw = 4, dh = 3), square_vent110x55, h = 50, expand = 5);
 }
 
 module ABS_air_filter_cassette_top_square_vent_170x80_stl() {
     air_filter_cassette_top(square_vent170x80);
+}
+
+module ABS_square_vent_channel_adaptor_square_vent_166x92_2_square_vent_114x59_h50_a0_e10_stl() {
+    square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
 }

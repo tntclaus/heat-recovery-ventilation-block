@@ -21,3 +21,6 @@ module channel_cap_model(type, wall_thickness, length) {
     }
 }
 
+module t_joint_166x92_to_114x59_adaptor() {
+    square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
+}
