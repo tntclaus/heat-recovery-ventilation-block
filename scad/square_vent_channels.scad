@@ -23,6 +23,6 @@ square_vent166x92 = change_type(square_vent154x80_t_joint, dw = 8, dh = 8);
 
 square_vent170x80 = ["square_vent_170x80", "Канал плоский DIY (170x80)", 174, 84, 170, 80, 8];
 
-circular_vent100 = ["circular_vent100", "Канал пластиковый DIY D100", 101.5, 101.5, 100, 100, 5];
+circular_vent100 = ["circular_vent100", "Канал пластиковый DIY D100", 104, 104, 100, 100, 5];
 
 use <square_vent_channel.scad>
