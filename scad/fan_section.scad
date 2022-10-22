@@ -113,10 +113,8 @@ module fan4square_vent_base(fan_type, vent_type) {
     fan_base();
 }
 
-module fan_inblower_assembly(vent_type) {
-    fan_type = fan40x28;
+module fan_inblower_assembly(vent_type, fan_type = fan40x28) {
     w = fan_width(fan_type)+1;
-
 
     assembly("fan_outblower") {
             translate([0,- w/2,-3])
@@ -131,20 +129,22 @@ module fan_inblower_assembly(vent_type) {
     }
 }
 
-module fan_outblower_assembly(vent_type) {
-    w = fan_width(fan60x20);
+module fan_outblower_assembly(vent_type, fan_type = fan40x28) {
+
+    w = fan_width(fan_type);
 
     assembly("fan_outblower") {
-        translate_z(30 / 2) {
+        translate_z(20 / 2) {
             translate_z(- 20)
-            place_fans4square_vent(60)
-            fan(fan60x20);
+            place_fans4square_vent(w)
+            fan(fan_type);
 
-            translate_z(- 5.01)
-            fan4square_vent_base(fan60x20, vent_type);
+//            fan4square_vent204x60_middle(vent_type, 30);
+//            translate_z(- 5.01)
+//            fan4square_vent_base(fan_type, vent_type);
         }
 
-        fan_holder_square_vent_assembly(fan60x20,vent_type);
+//        fan_holder_square_vent_assembly(fan_type,vent_type);
     }
 }
 

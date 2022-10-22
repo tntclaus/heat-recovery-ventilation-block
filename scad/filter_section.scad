@@ -12,7 +12,7 @@ use <sections.scad>
 module mesh_filter(type) {
     stl(str("ABS_mesh_filter_cap_", square_vent_channel_fun_name(type)));
 
-    length = 10;
+    length = 20;
     wall_thickness = PRINTED_WALL_THICKNESS;
     channel_cap_model(type, wall_thickness, length);
 }
@@ -36,9 +36,9 @@ module air_filter_holder_assembly(type) {
 }
 
 
-module air_filter_heat_breaker_assembly(type) {
+module air_filter_heat_breaker_assembly(type, l = 8) {
     assembly("air_filter_holder") {
-        d = 18;
+        d = l;
         translate_z(d / 2)
         air_filter_holder_side(type);
 
@@ -46,7 +46,7 @@ module air_filter_heat_breaker_assembly(type) {
         rotate([180, 0, 0])
             air_filter_holder_side(type);
 
-        air_filter_holder_middle(type, length = 8);
+        air_filter_holder_middle(type, length = l);
     }
 }
 

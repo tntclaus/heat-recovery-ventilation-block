@@ -60,14 +60,15 @@ module recuperator_assembly() {
 
             translate([0,145,0])
             rotate([90,0,0])
-                square_vent_channel_adaptor(square_vent50x87, square_vent110x55, h = 50);
+                square_vent_channel_adaptor(square_vent_54x91, square_vent110x55, h = 50);
 
         }
 
         // теплообменник
         rotate([0, 0, 90])
             recuparator_section_assembly(
-            change_type(square_vent154x80_t_joint, dw = - 2, dh = - 2)
+            change_type(square_vent154x80_t_joint, dw = - 2, dh = - 2),
+            hide = false
             );
 
         // в помещение
@@ -118,9 +119,12 @@ module ventilation_assembly() {
     //                air_filter_cassette_assembly(square_vent110x55);
     //    }
 
-    //        translate([-550,-30,0])
-    //        rotate([90,0,90])
-    //        fan_outblower_assembly(square_vent154x80_t_joint);
+            translate([-555,0,0])
+            rotate([90,0,90]) {
+                air_filter_heat_breaker_assembly(square_vent110x55, l = 40);
+                translate([0,10,10])
+                fan_outblower_assembly(square_vent_91x54);
+            }
 
 
     translate([- 434, 145, 0])
@@ -150,18 +154,18 @@ main_assembly();
 /**
 * STL
 */
-module ABS_square_vent_channel_t_joint_bottom_half_w15x35x10_154x80_42x80_154x80_stl() {
+module ABS_square_vent_channel_t_joint_bottom_half_w15x40x10_154x80_42x80_154x80_stl() {
     square_vent_channel_t_joint_custom_bottom(
     square_vent154x80_t_joint,
     square_vent42x80,
-    square_vent154x80_t_joint, extra_walls = [15, 35, 10]);
+    square_vent154x80_t_joint, extra_walls = [15, 40, 10]);
 }
 
-module ABS_square_vent_channel_t_joint_top_half_cut_w15x35x10_154x80_42x80_154x80_stl() {
+module ABS_square_vent_channel_t_joint_top_half_cut_w15x40x10_154x80_42x80_154x80_stl() {
     square_vent_channel_t_joint_custom_top(
     square_vent154x80_t_joint,
     square_vent42x80,
-    square_vent154x80_t_joint, cut = true, extra_walls = [15, 35, 10]);
+    square_vent154x80_t_joint, cut = true, extra_walls = [15, 40, 10]);
 }
 
 module ABS_square_vent_channel_t_joint_bottom_half_w20x20x20_154x80_103x49_154x80_stl() {
@@ -186,8 +190,8 @@ module ABS_square_vent_channel_adaptor_square_vent_114x59_2_square_vent_170x80_h
     square_vent_channel_adaptor(square_vent114x59, square_vent170x80, h = 40, expand = 15);
 }
 
-module ABS_square_vent_channel_adaptor_square_vent_50x87_2_square_vent_110x55_h50_a0_e5_stl() {
-    square_vent_channel_adaptor(change_type(square_vent42x80, dw = 4, dh = 3), square_vent110x55, h = 50, expand = 5);
+module ABS_square_vent_channel_adaptor_square_vent_54x91_2_square_vent_110x55_h50_a0_e5_stl() {
+    square_vent_channel_adaptor(square_vent_54x91, square_vent110x55, h = 50, expand = 5);
 }
 
 module ABS_air_filter_cassette_top_square_vent_170x80_stl() {
@@ -196,4 +200,9 @@ module ABS_air_filter_cassette_top_square_vent_170x80_stl() {
 
 module ABS_square_vent_channel_adaptor_square_vent_166x92_2_square_vent_114x59_h50_a0_e10_stl() {
     square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
+}
+
+
+module ABS_air_filter_holder_middle_square_vent_110x55_l40_stl() {
+    air_filter_holder_middle(square_vent110x55, length = 40);
 }
