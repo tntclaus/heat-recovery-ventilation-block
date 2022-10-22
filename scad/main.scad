@@ -53,10 +53,11 @@ module recuperator_assembly() {
                     square_vent42x80,
                     square_vent154x80_t_joint, cut_top = true, extra_walls = [15, 40, 10]);
 
-            // переходник выдува на 110х55
+            // переходник выдува
             translate([- 60, 0, 0])
-                rotate([- 90, - 0, - 90])
-                    t_joint_166x92_to_114x59_adaptor();
+                rotate([- 90, - 0, - 90]) {
+                    t_joint_166x92_to_D100_adaptor();
+                }
 
             translate([0,145,0])
             rotate([90,0,0])
@@ -88,9 +89,11 @@ module recuperator_assembly() {
                     rotate([- 90, 0, 0])
                         air_filter_cassette_top(square_vent170x80);
 
+            // переходник выдува
             translate([100, 0, 0])
-            rotate([ 90, - 0, - 90])
-                t_joint_166x92_to_114x59_adaptor();
+            rotate([ 90, - 0, - 90]) {
+                t_joint_166x92_to_D100_adaptor();
+            }
         }
     }
 }
@@ -119,21 +122,21 @@ module ventilation_assembly() {
     //                air_filter_cassette_assembly(square_vent110x55);
     //    }
 
-            translate([-555,0,0])
-            rotate([90,0,90]) {
-                air_filter_heat_breaker_assembly(square_vent110x55, l = 40);
-                translate([0,10,10])
-                fan_outblower_assembly(square_vent_91x54);
-            }
+    translate([-555,0,0])
+    rotate([90,0,90]) {
+        air_filter_heat_breaker_assembly(square_vent110x55, l = 40);
+        translate([0,10,10])
+        fan_outblower_assembly(square_vent_91x54);
+    }
 
 
     translate([- 434, 145, 0])
-        rotate([90, 0, 0]) {
+    rotate([90, 0, 0]) {
 
-            translate([0, 0, 50])
-                fan_inblower_assembly(square_vent40x80);
+        translate([0, 0, 50])
+            fan_inblower_assembly(square_vent40x80);
 
-        }
+    }
 
     translate([37, 0, 0])
         recuperator_assembly();
@@ -198,8 +201,14 @@ module ABS_air_filter_cassette_top_square_vent_170x80_stl() {
     air_filter_cassette_top(square_vent170x80);
 }
 
+// переходник с теплообменника на канал 110х55
 module ABS_square_vent_channel_adaptor_square_vent_166x92_2_square_vent_114x59_h50_a0_e10_stl() {
     square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
+}
+
+// переходник с теплообменника на трубу D100
+module ABS_square_to_circular_vent_channel_adaptorsquare_vent_166x92_2_circular_vent100_h50_a0_e10_stl() {
+    square_to_circular_vent_channel_adaptor(square_vent166x92, circular_vent100, 50, expand = 10);
 }
 
 

@@ -5,3 +5,4 @@ openscad.echo
 openscad.log
 *.3mf
 *.stl
+.idea

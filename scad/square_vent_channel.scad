@@ -230,4 +230,62 @@ module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5
     square_vent_channel_model(channel_out, length = expand);
 }
 
+module square_to_circular_vent_channel_adaptor(channel_square, channel_circular, h, a = 0, expand = 5) {
+    channel_in =  channel_square;
+    channel_out = channel_circular;
+    name = str(
+    "ABS_square_to_circular_vent_channel_adaptor",
+    square_vent_channel_fun_name(channel_in), "_2_",
+    square_vent_channel_fun_name(channel_out), "_",
+    "h", h, "_",
+    "a", a, "_",
+    "e", expand
+    );
+    stl(name);
 
+    module outer_shell() {
+        hull() {
+            translate_z(h / 2)
+            square_vent_channel_cube(channel_in, 0.1);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width(channel_out), h = 0.1, center = true);
+//                square_vent_channel_cube(channel_out, 0.1);
+        }
+    }
+
+    module inner_shell() {
+        translate_z(h / 2)
+            square_vent_channel_cube_inner(channel_in, 0.2);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                square_vent_channel_cube_inner(channel_out, 0.2);
+        hull() {
+            translate_z(h / 2)
+            square_vent_channel_cube_inner(channel_in, 0.1);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width_inner(channel_out), h = 0.1, center = true);
+        }
+    }
+
+    difference() {
+        outer_shell();
+        inner_shell();
+    }
+
+
+    translate_z((h+expand) / 2)
+    square_vent_channel_model(channel_in, length = expand);
+
+    translate_z(-(h+expand-.25) / 2)
+    rotate([0, 0, a])
+    difference() {
+        cylinder(d = square_vent_channel_width(channel_out), h = expand, center = true);
+        cylinder(d = square_vent_channel_width_inner(channel_out), h = expand*2, center = true);
+    }
+//    square_vent_channel_model(channel_out, length = expand);
+}
