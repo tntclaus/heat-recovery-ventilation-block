@@ -126,28 +126,30 @@ module recuperator_assembly() {
 }
 
 module ventilation_assembly() {
-//    place_mesh_filter();
+    place_mesh_filter();
 
     //    translate([0,50,0])
     //    rotate([90,0,0])
     //    valve_section_assembly();
     //
-    //    translate([0,110,0])
-    //    rotate([90,0,0])
-    //    air_filter_heat_breaker_assembly(square_vent110x55);
+//        translate([0,110,0])
+//        rotate([90,0,0])
+//        air_filter_heat_breaker_assembly(square_vent110x55);
     //
     //    translate([0,150,0])
     //    rotate([90,0,0])
     //    air_filter_heat_breaker_assembly(square_vent110x55);
     //
-    //    translate([0,200,0]) {
-    //        rotate([90, 0, 0])
-    //            air_filter_holder_assembly(square_vent110x55);
-    //
-    //        translate([0, 0, 60])
-    //            rotate([90, 0, 0])
-    //                air_filter_cassette_assembly(square_vent110x55);
-    //    }
+        translate([- 435,177,0]) {
+            rotate([90, 0, 0])
+                color("red")
+                FLEX_inlet_fan_2_tube_adaptor_stl();
+//                air_filter_holder_assembly(square_vent110x55);
+//                square_to_square_flex_adaptor(inlet_tube_type, square_vent110x55, 60);
+//            translate([0, 0, 60])
+//                rotate([90, 0, 0])
+//                    air_filter_cassette_assembly(square_vent110x55);
+        }
 
     translate([- 555, 0, 0])
         rotate([90, 0, 90]) {
@@ -169,14 +171,16 @@ module ventilation_assembly() {
     translate([37, 0, 0])
         recuperator_assembly();
 
-//    translate([434, - 245, - 50])
-//        rotate([0, 180, 0]) {
-//            difference() {
-//                D100_to_D100_flex_adaptor();
+    translate([434, - 245, - 50])
+        rotate([0, 180, 0]) {
+            difference() {
+//                square_to_square_flex_adaptor(inlet_tube_type, inlet_tube_type, 60);
+
 //                translate([-50,0,0])
 //                cube([100,200,100], center = true);
-//            }
-//        }
+            }
+
+        }
 
 }
 
@@ -191,6 +195,17 @@ module main_assembly() {
 if ($preview)
     main_assembly();
 
+
+module FLEX_inlet_fan_2_tube_adaptor_stl() {
+    stl("FLEX_inlet_fan_2_tube_adaptor");
+
+    h = 60;
+    w = fan_width(fan92x25);
+    circular_vent92 = ["", "", w+4, w+4, w, w, 2];
+    square_to_square_flex_adaptor(circular_vent92, square_vent110x55, h, sections=8);
+    translate_z(h/2+2)
+    fan4square_vent_cap(fan92x25, circular_vent92, material = "FLEX");
+}
 
 /**
 * STL

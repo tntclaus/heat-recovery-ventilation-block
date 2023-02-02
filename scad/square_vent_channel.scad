@@ -150,7 +150,8 @@ module square_vent_channel_cube_inner(type, length) {
     w_i = square_vent_channel_width_inner(type);
     h_i = square_vent_channel_heigth_inner(type);
     r = square_vent_channel_radius(type);
-    rounded_cube_xy([w_i, h_i, length], r = 2, xy_center = true, z_center = true);
+//    echo([w_i, h_i, r]);
+    rounded_cube_xy([w_i, h_i, length], r = r, xy_center = true, z_center = true);
 }
 
 module square_vent_channel_cube(type, length) {
@@ -254,7 +255,6 @@ module square_to_circular_vent_channel_adaptor(channel_square, channel_circular,
             translate_z(- h / 2)
             rotate([0, 0, a])
                 cylinder(d = square_vent_channel_width(channel_out), h = 0.1, center = true);
-//                square_vent_channel_cube(channel_out, 0.1);
         }
     }
 
@@ -362,6 +362,7 @@ module circular_to_circular_flex_adaptor(channel_in, channel_out, h, a = 0, expa
     square_vent_channel_fun_name(channel_out), "_",
     "h", h, "_",
     "a", a, "_",
+    "s", sections, "_",
     "e", expand
     );
     stl(name);
@@ -432,4 +433,114 @@ module circular_to_circular_flex_adaptor(channel_in, channel_out, h, a = 0, expa
         cylinder(d = square_vent_channel_width(channel_out), h = expand, center = true);
         cylinder(d = square_vent_channel_width_inner(channel_out), h = expand*2, center = true);
     }
+}
+
+
+
+module square_to_square_flex_adaptor(channel_in, channel_out, h, a = 0, expand = 10, sections = 10, stl = true) {
+    assert(sections % 2 == 0, "sections count must be even");
+    if(stl) {
+        name = str(
+        "FLEX_square_to_square_flex_adaptor_",
+        square_vent_channel_fun_name(channel_in), "_2_",
+        square_vent_channel_fun_name(channel_out), "_",
+        "h", h, "_",
+        "a", a, "_",
+        "s", sections, "_",
+        "e", expand
+        );
+        stl(name);
+    }
+
+
+    module channel_cube(outer, size) {
+        if(outer)
+            square_vent_channel_cube(size, 0.1);
+        else
+            square_vent_channel_cube_inner(size, 0.1);
+    }
+
+    function channel_width(outer, size) = outer ? square_vent_channel_width(size) : square_vent_channel_width_inner(size);
+    function channel_depth(outer, size) = outer ? square_vent_channel_heigth(size) : square_vent_channel_heigth_inner(size);
+
+    module shell(in, out, outer) {
+//        assert(d1 >= d2, "d1 must be greater or equal to d2");
+
+        if(!outer) {
+            translate_z(h / 2)
+            square_vent_channel_cube_inner(in, 0.2);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                square_vent_channel_cube_inner(out, 0.2);
+        }
+        step = h / sections;
+
+        r_in = square_vent_channel_radius(in);
+        r_out = square_vent_channel_radius(out);
+        w_in = channel_width(outer, in);
+        w_out = channel_width(outer, out);
+        d_in = channel_depth(outer, in);
+        d_out = channel_depth(outer, out);
+
+        function w(hf) = (hf+h/2)/h * (w_in-w_out);
+        function d(hf) = (hf+h/2)/h * (d_in-d_out);
+        function r(hf) = (hf+h/2)/h * (r_in-r_out);
+        dimensions = [for(hf = [-h/2 : step : h/2 - step]) [hf, w(hf), d(hf), r(hf)]];
+
+        for(i = [0 : len(dimensions)-1]) {
+            s1 = i % 2 == 0 ? 0 : step;
+            s2 = i % 2 != 0 ? 0 : step;
+
+            hf = dimensions[i][0];
+            w1 = i > 0 ? w_out+dimensions[i-1][1] : w_out;
+            d1 = i > 0 ? d_out+dimensions[i-1][2] : d_out;
+            r1 = i > 0 ? r_out+dimensions[i-1][3] : r_out;
+
+            w2 = i == len(dimensions)-1 ? w_in : w_out+dimensions[i][1];
+            d2 = i == len(dimensions)-1 ? d_in : d_out+dimensions[i][2];
+            r2 = i == len(dimensions)-1 ? r_in : r_out+dimensions[i][3];
+
+            chan1 = [0,1,w1+s1,d1+s1,w1+s1,d1+s1,r1];
+            chan2 = [0,1,w2+s2,d2+s2,w2+s2,d2+s2,r2];
+
+//            echo("HF", dimensions[i]);
+
+            hull() {
+                if(i % 2 != 0) {
+                    translate_z(hf)
+                        channel_cube(outer, chan1);
+
+                    translate_z(hf+step)
+                    rotate([0, 0, a])
+                        channel_cube(outer, chan2);
+                } else {
+                    translate_z(hf)
+                        channel_cube(outer, chan1);
+
+                    translate_z(hf+step)
+                    rotate([0, 0, a])
+                        channel_cube(outer, chan2);
+                }
+            }
+        }
+    }
+
+    difference() {
+        shell(
+            in = channel_in,
+            out = channel_out,
+            outer = true);
+        shell(
+            in = channel_in,
+            out = channel_out,
+            outer = false);
+    }
+
+    translate_z((h+expand) / 2)
+    square_vent_channel_model(channel_in, length = expand);
+
+    translate_z(-(h+expand) / 2)
+    rotate([0, 0, a])
+    square_vent_channel_model(channel_out, length = expand);
 }
