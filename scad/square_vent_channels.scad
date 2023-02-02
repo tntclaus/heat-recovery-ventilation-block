@@ -9,6 +9,8 @@ square_vent80x40 = ["square_vent_80x40", "Канал пластиковый пл
 square_vent80x80 = ["square_vent_80x80", "Канал пластиковый плоский DIY 80x80", 84, 84, 80, 80, 5];
 square_vent80x80_t_joint = ["square_vent_80x80_t_joint", "Тройник плоский DIY (80x80)", 84, 84, 80, 80, 8];
 square_vent154x80_t_joint = ["square_vent_154x80_t_joint", "Тройник плоский DIY (154x80)", 158, 84, 154, 80, 8];
+square_vent140x100_t_joint = ["square_vent_140x100_t_joint", "Тройник плоский DIY (140x100)", 145, 104, 141, 100, 8];
+square_vent148x108_t_joint = change_type(square_vent140x100_t_joint, dw = 7, dh = 8);
 
 
 square_vent103x49 = change_type(square_vent110x55, dw = - 4, dh = - 3);
@@ -23,6 +25,9 @@ square_vent166x92 = change_type(square_vent154x80_t_joint, dw = 8, dh = 8);
 
 square_vent170x80 = ["square_vent_170x80", "Канал плоский DIY (170x80)", 174, 84, 170, 80, 8];
 
+circular_vent92 = ["circular_vent92", "Канал пластиковый DIY D92", 96, 96, 92, 92, 5];
 circular_vent100 = ["circular_vent100", "Канал пластиковый DIY D100", 104, 104, 100, 100, 5];
+circular_vent125 = ["circular_vent100", "Канал пластиковый DIY D100", 129, 129, 125, 125, 5];
+circular_vent121 = ["circular_vent100", "Канал пластиковый DIY D100", 125, 125, 121, 121, 5];
 
 use <square_vent_channel.scad>

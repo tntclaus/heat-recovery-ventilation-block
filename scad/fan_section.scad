@@ -29,10 +29,22 @@ module place_fans4square_vent(w) {
 /**
 * Заглушка на канал
 */
-module fan_holder_square_vent_assembly(fan_type, vent_type, distance) {
-    assembly("fan_holder_square_vent") {
-        translate_z(- 15.01 - 14.4 / 2)
-        fan4square_vent_cap(fan_type, vent_type, distance);
+module fan_holder_square_vent(fan_type, vent_type) {
+    w = fan_width(fan_type);
+    circular_vent92 = ["", "", w+4, w+4, w, w, 5];
+
+    name = str(
+        "ABS_fan_holder_square_vent_",
+        square_vent_channel_fun_name(vent_type), "_2_fan",
+        w,"x",w
+        );
+    stl(name);
+
+    translate_z(-5){
+        translate_z(- 26)
+        fan4square_vent_cap(fan_type, vent_type, material = "");
+
+        square_vent_channel_adaptor(vent_type, circular_vent92, 30, expand = 5, stl = false);
     }
 }
 
@@ -57,27 +69,25 @@ module fan4square_vent204x60_middle(type, length) {
     }
 }
 
-module fan4square_vent_cap(fan_type, vent_type, distance) {
-    stl(str(
-    "ABS_fan4",square_vent_channel_fun_name(vent_type),"_cap_fan",
-    fan_width(fan_type), "x", fan_depth(fan_type), "_",
-    "dist", distance
-    ));
+module fan4square_vent_cap(fan_type, vent_type, material = "ABS") {
+    fw = fan_width(fan_type);
+    if(material != "") {
+        stl(str(
+        material, "_fan4", square_vent_channel_fun_name(vent_type), "_cap_fan",
+        fan_width(fan_type), "x", fan_depth(fan_type)
+        ));
+    }
 
     bigger_type = change_type(vent_type, dw=1,dh=1);
     module fan_base() {
         difference() {
-            square_vent_channel_cube(bigger_type, 2);
+            rounded_cube_xy([fw,fw,2], 2, xy_center = true);
 
             if(square_vent_channel_width(vent_type) > square_vent_channel_heigth(vent_type)) {
-                place_fans4square_vent(distance){
-                    fan_holes(fan_type);
-                }
+                fan_holes(fan_type);
             } else {
                 rotate([0,0,90])
-                place_fans4square_vent(distance){
-                    fan_holes(fan_type);
-                }
+                fan_holes(fan_type);
             }
         }
     }
@@ -113,19 +123,16 @@ module fan4square_vent_base(fan_type, vent_type) {
     fan_base();
 }
 
-module fan_inblower_assembly(vent_type, fan_type = fan40x28) {
+module fan_inblower_assembly(vent_type, fan_type) {
     w = fan_width(fan_type)+1;
 
     assembly("fan_outblower") {
-            translate([0,- w/2,-3])
-            fan(fan_type);
-            translate([0, w/2,-3])
-            fan(fan_type);
-
-//            translate_z(- 5.01)
-//            fan4square_vent_base(fan_type, vent_type);
-
-//        fan_holder_square_vent_assembly(fan_type,vent_type, w);
+        translate_z(-40)
+        fan(fan_type);
+        fan_holder_square_vent(fan_type,change_type(vent_type, 9, 9));
+        translate_z(-33)
+        color("red")
+        fan4square_vent_cap(fan_type, vent_type, material = "FLEX");
     }
 }
 

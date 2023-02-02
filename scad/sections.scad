@@ -21,10 +21,29 @@ module channel_cap_model(type, wall_thickness, length) {
     }
 }
 
-module t_joint_166x92_to_114x59_adaptor() {
-    square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
+//module t_joint_166x92_to_114x59_adaptor() {
+//    square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
+//}
+//
+//module t_joint_166x92_to_D100_adaptor() {
+//    square_to_circular_vent_channel_adaptor(square_vent166x92, circular_vent100, 50, expand = 10);
+//}
+
+module t_joint_140x100_to_D100_adaptor() {
+    square_to_circular_vent_channel_adaptor(square_vent148x108_t_joint, circular_vent100, 40, expand = 10);
 }
 
-module t_joint_166x92_to_D100_adaptor() {
-    square_to_circular_vent_channel_adaptor(square_vent166x92, circular_vent100, 50, expand = 10);
+module D125_to_D100_adaptor() {
+    circular_to_circular_eccentric_vent_channel_adaptor(circular_vent125, circular_vent100, 50, expand = 10);
 }
+
+module D125_to_D100_flex_adaptor() {
+    color("red")
+    circular_to_circular_flex_adaptor(circular_vent125, circular_vent100, 55, expand = 10);
+}
+
+module D100_to_D100_flex_adaptor() {
+    color("red")
+    circular_to_circular_flex_adaptor(circular_vent100, circular_vent100, 60, expand = 10);
+}
+

@@ -177,16 +177,18 @@ module square_vent_channel(type, length) {
 }
 
 
-module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5) {
-    name = str(
-    "ABS_square_vent_channel_adaptor_",
-    square_vent_channel_fun_name(channel_in), "_2_",
-    square_vent_channel_fun_name(channel_out), "_",
-    "h", h, "_",
-    "a", a, "_",
-    "e", expand
-    );
-    stl(name);
+module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5, stl = true) {
+    if(stl) {
+        name = str(
+        "ABS_square_vent_channel_adaptor_",
+        square_vent_channel_fun_name(channel_in), "_2_",
+        square_vent_channel_fun_name(channel_out), "_",
+        "h", h, "_",
+        "a", a, "_",
+        "e", expand
+        );
+        stl(name);
+    }
 
     module outer_shell() {
         hull() {
@@ -229,6 +231,7 @@ module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5
     rotate([0, 0, a])
     square_vent_channel_model(channel_out, length = expand);
 }
+
 
 module square_to_circular_vent_channel_adaptor(channel_square, channel_circular, h, a = 0, expand = 5) {
     channel_in =  channel_square;
@@ -288,4 +291,145 @@ module square_to_circular_vent_channel_adaptor(channel_square, channel_circular,
         cylinder(d = square_vent_channel_width_inner(channel_out), h = expand*2, center = true);
     }
 //    square_vent_channel_model(channel_out, length = expand);
+}
+
+module circular_to_circular_eccentric_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5) {
+    name = str(
+    "ABS_circular_to_circular_eccentric_vent_channel_adaptor",
+    square_vent_channel_fun_name(channel_in), "_2_",
+    square_vent_channel_fun_name(channel_out), "_",
+    "h", h, "_",
+    "a", a, "_",
+    "e", expand
+    );
+    stl(name);
+
+    module outer_shell() {
+        hull() {
+            translate_z(h / 2)
+            cylinder(d = square_vent_channel_width(channel_in), h = 0.1, center = true);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width(channel_out), h = 0.1, center = true);
+        }
+    }
+
+    module inner_shell() {
+        translate_z(h / 2)
+            cylinder(d = square_vent_channel_width_inner(channel_in), h = 0.2, center = true);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width_inner(channel_out), h = 0.2, center = true);
+        hull() {
+            translate_z(h / 2)
+            cylinder(d = square_vent_channel_width_inner(channel_in), h = 0.1, center = true);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width_inner(channel_out), h = 0.1, center = true);
+        }
+    }
+
+    difference() {
+        outer_shell();
+        inner_shell();
+    }
+
+    translate_z((h+expand) / 2)
+    difference() {
+        cylinder(d = square_vent_channel_width(channel_in), h = expand, center = true);
+        cylinder(d = square_vent_channel_width_inner(channel_in), h = expand*2, center = true);
+    }
+
+    translate_z(-(h+expand-.25) / 2)
+    rotate([0, 0, a])
+    difference() {
+        cylinder(d = square_vent_channel_width(channel_out), h = expand, center = true);
+        cylinder(d = square_vent_channel_width_inner(channel_out), h = expand*2, center = true);
+    }
+}
+
+
+
+module circular_to_circular_flex_adaptor(channel_in, channel_out, h, a = 0, expand = 5, sections = 10) {
+    assert(sections % 2 == 0, "sections count must be even");
+
+    name = str(
+    "FLEX_circular_to_circular_flex_adaptor_",
+    square_vent_channel_fun_name(channel_in), "_2_",
+    square_vent_channel_fun_name(channel_out), "_",
+    "h", h, "_",
+    "a", a, "_",
+    "e", expand
+    );
+    stl(name);
+
+
+    module shell(d1, d2, outer) {
+        assert(d1 >= d2, "d1 must be greater or equal to d2");
+
+        if(!outer) {
+            translate_z(h / 2)
+            cylinder(d = square_vent_channel_width_inner(channel_in), h = 0.2, center = true);
+
+            translate_z(- h / 2)
+            rotate([0, 0, a])
+                cylinder(d = square_vent_channel_width_inner(channel_out), h = 0.2, center = true);
+        }
+        step = h / sections;
+
+        function dia(hf) = (hf+h/2)/h * (d1-d2);
+        dimensions = [for(hf = [-h/2 : step : h/2 - step]) [hf, dia(hf)]];
+
+        for(i = [0 : len(dimensions)-1]) {
+            hf = dimensions[i][0];
+            dia1 = i > 0 ? d2+dimensions[i-1][1] : d2;
+            dia2 = i == len(dimensions)-1 ? d1 : d2+dimensions[i][1];
+//            echo("HF", hf, dia1, dia2);
+
+            hull() {
+                if(i % 2 != 0) {
+                    translate_z(hf)
+                        cylinder(d = dia1+step, h = 0.1, center = true);
+
+                    translate_z(hf+step)
+                    rotate([0, 0, a])
+                        cylinder(d = dia2, h = 0.1, center = true);
+                } else {
+                    translate_z(hf)
+                        cylinder(d = dia1, h = 0.1, center = true);
+
+                    translate_z(hf+step)
+                    rotate([0, 0, a])
+                        cylinder(d = dia2+step, h = 0.1, center = true);
+                }
+            }
+        }
+    }
+
+    difference() {
+        shell(
+            d1 = square_vent_channel_width(channel_in),
+            d2 = square_vent_channel_width(channel_out),
+            outer = true);
+        shell(
+            d1 = square_vent_channel_width_inner(channel_in),
+            d2 = square_vent_channel_width_inner(channel_out),
+            outer = false);
+    }
+
+    translate_z((h+expand) / 2)
+    difference() {
+        cylinder(d = square_vent_channel_width(channel_in), h = expand, center = true);
+        cylinder(d = square_vent_channel_width_inner(channel_in), h = expand*2, center = true);
+    }
+
+    translate_z(-(h+expand-.25) / 2)
+    rotate([0, 0, a])
+    difference() {
+        cylinder(d = square_vent_channel_width(channel_out), h = expand, center = true);
+        cylinder(d = square_vent_channel_width_inner(channel_out), h = expand*2, center = true);
+    }
 }
