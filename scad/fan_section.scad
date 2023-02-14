@@ -7,42 +7,37 @@ include <NopSCADlib/vitamins/fans.scad>
 
 include <square_vent_channels.scad>
 
-
 include <config.scad>
 
 h = 100;
 
-fan40x28 = [40,  28, 38, 16,    M2_5_dome_screw, 25,   7.5,100, 9, 0,   undef];
-
-//square_vent208x64 = ["square_vent_208x64", "Обвод вокруг канала 204x60", 208, 64, 204, 60, 5];
 
 module place_fans4square_vent(w) {
     translate([w/2, 0, 0])
         children();
 
-//    children();
-
     translate([- w/2, 0, 0])
         children();
 }
+
+function fan_to_vent(fan_type) = ["", "", fan_width(fan_type)+4, fan_width(fan_type)+4, fan_width(fan_type), fan_width(fan_type), 5];
 
 /**
 * Заглушка на канал
 */
 module fan_holder_square_vent(fan_type, vent_type) {
-    w = fan_width(fan_type);
-    circular_vent92 = ["", "", w+4, w+4, w, w, 5];
+    circular_vent92 = fan_to_vent(fan_type);
 
-    name = str(
-        "ABS_fan_holder_square_vent_",
-        square_vent_channel_fun_name(vent_type), "_2_fan",
-        w,"x",w
-        );
-    stl(name);
+//    name = str(
+//        "ABS_fan_holder_square_vent_",
+//        square_vent_channel_fun_name(vent_type), "_2_fan",
+//        fan_width(fan_type),"x",fan_width(fan_type)
+//        );
+//    stl(name);
 
     translate_z(-5){
         translate_z(- 26)
-        fan4square_vent_cap(fan_type, vent_type, material = "");
+        fan4square_vent_cap(fan_type);
 
         square_vent_channel_adaptor(vent_type, circular_vent92, 30, expand = 5, stl = false);
     }
@@ -69,32 +64,35 @@ module fan4square_vent204x60_middle(type, length) {
     }
 }
 
-module fan4square_vent_cap(fan_type, vent_type, material = "ABS") {
+module fan4square_vent_cap(fan_type, fan_cuts = true) {
     fw = fan_width(fan_type);
-    if(material != "") {
-        stl(str(
-        material, "_fan4", square_vent_channel_fun_name(vent_type), "_cap_fan",
-        fan_width(fan_type), "x", fan_depth(fan_type)
-        ));
+//    if(material != "") {
+//        stl(str(
+//        material, "_fan_cap_",
+//        fan_width(fan_type), "x", fan_depth(fan_type)
+//        ));
+//    }
+
+    module fan_cut(a) {
+        rotate([0, 0, a])
+                    rounded_cube_xy(
+                        [fan_aperture(fan_type) + fan_thickness(fan_type) * 2, 4, 10],
+                    1, xy_center = true, z_center = true);
     }
 
-    bigger_type = change_type(vent_type, dw=1,dh=1);
     module fan_base() {
         difference() {
             rounded_cube_xy([fw,fw,2], 2, xy_center = true);
-
-            if(square_vent_channel_width(vent_type) > square_vent_channel_heigth(vent_type)) {
-                fan_holes(fan_type);
-            } else {
-                rotate([0,0,90])
-                fan_holes(fan_type);
+            fan_holes(fan_type);
+            if(fan_cuts) {
+                fan_cut(45);
+                fan_cut(-45);
             }
         }
     }
 
     translate_z(6)
     fan_base();
-//    square_vent_channel_model(bigger_type, 10);
 }
 
 module fan4square_vent_base(fan_type, vent_type) {
@@ -126,44 +124,81 @@ module fan4square_vent_base(fan_type, vent_type) {
 module fan_inblower_assembly(vent_type, fan_type) {
     w = fan_width(fan_type)+1;
 
-    assembly("fan_outblower") {
+    assembly("fan_inblower") {
         translate_z(-40)
         fan(fan_type);
         fan_holder_square_vent(fan_type,change_type(vent_type, 9, 9));
         translate_z(-33)
         color("red")
-        fan4square_vent_cap(fan_type, vent_type, material = "FLEX");
+        FLEX_fan_gasket_stl();
     }
 }
 
-module fan_outblower_assembly(vent_type, fan_type = fan40x28) {
-
+module fan_outblower_assembly() {
+    fan_type = FAN_TYPE;
     w = fan_width(fan_type);
 
     assembly("fan_outblower") {
-        translate_z(20 / 2) {
-            translate_z(- 20)
-            place_fans4square_vent(w)
-            fan(fan_type);
+        translate_z(-30.5)
+        fan(fan_type);
+        ABS_airduct_outlet_fan_adaptor_stl();
 
-//            fan4square_vent204x60_middle(vent_type, 30);
-//            translate_z(- 5.01)
-//            fan4square_vent_base(fan_type, vent_type);
+        translate_z(-24)
+        color("red")
+        FLEX_fan_gasket_stl();
+
+        translate_z(-62)
+        FLEX_outlet_fan_2_tube_adaptor_stl();
+        translate_z(-80) {
+            ABS_fan_sleeve_stl();
+            hflip() vflip() ABS_fan_sleeve_stl();
         }
-
-//        fan_holder_square_vent_assembly(fan_type,vent_type);
     }
 }
 
 
-module ABS_fan4square_vent_cap_fan60x20_stl() {
-    fan4square_vent_cap(fan60x20);
+
+module ABS_fan_sleeve_stl() {
+    stl("ABS_fan_sleeve");
+    fw = fan_width(FAN_TYPE) + 10;
+    fw_inner = fan_width(FAN_TYPE) + 4;
+
+    module place_mount_hole() {
+        for(x = [-1, 1])
+        translate([x*(fw/2+6),0,0])
+            rotate([90,0,0])
+                children();
+    }
+
+    translate_z(40)
+    difference() {
+        union() {
+            rounded_cube_xy([fw, fw, 10], 2, xy_center = true, z_center = true);
+            rounded_cube_xz([fw_inner+30, 7, 10], 2, xy_center = true, z_center = true);
+
+
+        }
+        rounded_cube_xy([fw_inner, fw_inner, 11], 2, xy_center = true, z_center = true);
+
+        translate([0,fw-.25,0])
+        cube([fw*2,fw*2,fw*2], center = true);
+
+        place_mount_hole()
+            cylinder(d = 3.5, h = 100, center = true);
+    }
+
+
+    //    cube([fw,fw,fw]);
 }
 
-module ABS_fan4square_vent204x60_middle_square_vent_204x60_l30_stl() {
-    fan4square_vent204x60_middle(square_vent204x60, 30);
-}
-
-module ABS_fan4square_vent_base_fan60x20_stl() {
-    fan4square_vent_base(fan60x20);
-}
+//module ABS_fan4square_vent_cap_fan60x20_stl() {
+//    fan4square_vent_cap(fan60x20);
+//}
+//
+//module ABS_fan4square_vent204x60_middle_square_vent_204x60_l30_stl() {
+//    fan4square_vent204x60_middle(square_vent204x60, 30);
+//}
+//
+//module ABS_fan4square_vent_base_fan60x20_stl() {
+//    fan4square_vent_base(fan60x20);
+//}

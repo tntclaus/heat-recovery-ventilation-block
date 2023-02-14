@@ -2,6 +2,7 @@ include <NopSCADlib/utils/core/core.scad>
 use <NopSCADlib/utils/core/rounded_rectangle.scad>
 
 include <square_vent_channels.scad>
+include <fan_section.scad>
 
 include <config.scad>
 
@@ -21,16 +22,76 @@ module channel_cap_model(type, wall_thickness, length) {
     }
 }
 
-//module t_joint_166x92_to_114x59_adaptor() {
-//    square_vent_channel_adaptor(square_vent166x92, square_vent114x59, 50, expand = 10);
-//}
-//
-//module t_joint_166x92_to_D100_adaptor() {
-//    square_to_circular_vent_channel_adaptor(square_vent166x92, circular_vent100, 50, expand = 10);
-//}
+module recuperator_cross() {
+    ABS_recuperation_cross_half_stl();
 
-module t_joint_140x100_to_D100_adaptor() {
-    square_to_circular_vent_channel_adaptor(square_vent148x108_t_joint, circular_vent100, 40, expand = 10);
+    hflip() vflip()
+    ABS_recuperation_cross_half_stl();
+}
+
+module ABS_recuperation_cross_half_stl() {
+    stl("ABS_recuperation_cross_half");
+    square_vent_channel_t_joint_custom_top(heatexchanger_face_type, RECUPERATOR_IN_CHANNEL, heatexchanger_face_type, extra_walls = [10, 10, 10]);
+}
+
+
+module ABS_airduct_inlet_fan_adaptor_stl() {
+    stl("ABS_airduct_inlet_fan_adaptor");
+
+    square_vent_channel_adaptor(square_vent148x108_t_joint, fan_to_vent(fan92x25), 30, expand = 10, expand_exit = 1);
+
+    translate_z(-22) {
+        fan4square_vent_cap(fan92x25, fan_to_vent(fan92x25), fan_cuts = false, material = "");
+    }
+}
+
+module ABS_airduct_outlet_fan_adaptor_stl() {
+    stl("ABS_airduct_outlet_fan_adaptor");
+
+    square_vent_channel_adaptor(square_vent148x108_t_joint, fan_to_vent(fan92x25), 30, expand = 10, expand_exit = 1);
+
+    translate_z(-22) {
+        fan4square_vent_cap(fan92x25, fan_cuts = false);
+    }
+}
+
+module FLEX_outlet_fan_2_tube_adaptor_stl() {
+    stl("FLEX_outlet_fan_2_tube_adaptor");
+
+    h = 30;
+    color("red") {
+        circular_vent92 = fan_to_vent(FAN_TYPE);
+        square_vent_channel_adaptor(circular_vent92, square_vent113x58, h, expand = 10);
+        translate_z(h / 2 + 2){
+            fan4square_vent_cap(fan92x25);
+
+            translate_z(- 8.5)
+            fan_hole_positions(fan92x25)
+            cylinder(d = 4.5, h = 4);
+        }
+    }
+}
+
+module FLEX_inlet_fan_2_tube_adaptor_stl() {
+    stl("FLEX_inlet_fan_2_tube_adaptor");
+    color("red") {
+
+        h = 60;
+        circular_vent92 = fan_to_vent(FAN_TYPE);
+        square_to_square_flex_adaptor(circular_vent92, square_vent110x55, h, sections = 8);
+        translate_z(h / 2 + 2){
+            fan4square_vent_cap(FAN_TYPE);
+
+            translate_z(- 8.5)
+            fan_hole_positions(fan92x25)
+            cylinder(d = 4.5, h = 4);
+        }
+    }
+}
+
+module FLEX_fan_gasket_stl() {
+    stl("FLEX_fan_gasket");
+    fan4square_vent_cap(FAN_TYPE, fan_cuts = false);
 }
 
 module D125_to_D100_adaptor() {

@@ -37,13 +37,13 @@ module square_vent_channel_t_joint_custom(type1, type2, type3, cut_top=false, ex
     square_vent_channel_t_joint_custom_bottom(type1, type2, type3, extra_walls);
 }
 module square_vent_channel_t_joint_custom_top(type1, type2, type3, extra_walls, cut) {
-    name = str(
-    "ABS_square_vent_channel_t_joint_top_half", cut == true ? "_cut" : "","_w", extra_walls[0],"x",extra_walls[1],"x",extra_walls[2], "_",
-    square_vent_channel_width_inner(type1), "x", square_vent_channel_heigth_inner(type1), "_",
-    square_vent_channel_width_inner(type2), "x", square_vent_channel_heigth_inner(type2), "_",
-    square_vent_channel_width_inner(type3), "x", square_vent_channel_heigth_inner(type3)
-    );
-    stl(name)
+//    name = str(
+//    "ABS_square_vent_channel_t_joint_top_half", cut == true ? "_cut" : "","_w", extra_walls[0],"x",extra_walls[1],"x",extra_walls[2], "_",
+//    square_vent_channel_width_inner(type1), "x", square_vent_channel_heigth_inner(type1), "_",
+//    square_vent_channel_width_inner(type2), "x", square_vent_channel_heigth_inner(type2), "_",
+//    square_vent_channel_width_inner(type3), "x", square_vent_channel_heigth_inner(type3)
+//    );
+//    stl(name)
     mirror([1,0,0])
     if(cut) {
         w1 = square_vent_channel_width(type1);
@@ -64,16 +64,16 @@ module square_vent_channel_t_joint_custom_top(type1, type2, type3, extra_walls, 
     }
 }
 
-module square_vent_channel_t_joint_custom_bottom(type1, type2, type3, extra_walls) {
-    name = str(
-    "ABS_square_vent_channel_t_joint_bottom_half_w", extra_walls[0],"x",extra_walls[1],"x",extra_walls[2], "_",
-    square_vent_channel_width_inner(type1), "x", square_vent_channel_heigth_inner(type1), "_",
-    square_vent_channel_width_inner(type2), "x", square_vent_channel_heigth_inner(type2), "_",
-    square_vent_channel_width_inner(type3), "x", square_vent_channel_heigth_inner(type3)
-    );
-    stl(name);
-    square_vent_channel_t_joint_custom_half(type1, type2, type3, extra_walls);
-}
+//module square_vent_channel_t_joint_custom_bottom(type1, type2, type3, extra_walls) {
+//    name = str(
+//    "ABS_square_vent_channel_t_joint_bottom_half_w", extra_walls[0],"x",extra_walls[1],"x",extra_walls[2], "_",
+//    square_vent_channel_width_inner(type1), "x", square_vent_channel_heigth_inner(type1), "_",
+//    square_vent_channel_width_inner(type2), "x", square_vent_channel_heigth_inner(type2), "_",
+//    square_vent_channel_width_inner(type3), "x", square_vent_channel_heigth_inner(type3)
+//    );
+//    stl(name);
+//    square_vent_channel_t_joint_custom_half(type1, type2, type3, extra_walls);
+//}
 
 module square_vent_channel_t_joint_custom_half(type1, type2, type3, extra_walls = 20) {
 
@@ -178,18 +178,20 @@ module square_vent_channel(type, length) {
 }
 
 
-module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5, stl = true) {
-    if(stl) {
-        name = str(
-        "ABS_square_vent_channel_adaptor_",
-        square_vent_channel_fun_name(channel_in), "_2_",
-        square_vent_channel_fun_name(channel_out), "_",
-        "h", h, "_",
-        "a", a, "_",
-        "e", expand
-        );
-        stl(name);
-    }
+module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5, expand_exit = undef, stl = true) {
+//    if(stl) {
+//        name = str(
+//        "ABS_square_vent_channel_adaptor_",
+//        square_vent_channel_fun_name(channel_in), "_2_",
+//        square_vent_channel_fun_name(channel_out), "_",
+//        "h", h, "_",
+//        "a", a, "_",
+//        "e", expand
+//        );
+//        stl(name);
+//    }
+    expand1 = expand;
+    expand2 = expand_exit ? expand_exit : expand;
 
     module outer_shell() {
         hull() {
@@ -225,12 +227,12 @@ module square_vent_channel_adaptor(channel_in, channel_out, h, a = 0, expand = 5
     }
 
 
-    translate_z((h+expand) / 2)
-    square_vent_channel_model(channel_in, length = expand);
+    translate_z((h+expand1) / 2)
+    square_vent_channel_model(channel_in, length = expand1);
 
-    translate_z(-(h+expand) / 2)
+    translate_z(-(h+expand2) / 2)
     rotate([0, 0, a])
-    square_vent_channel_model(channel_out, length = expand);
+    square_vent_channel_model(channel_out, length = expand2);
 }
 
 
@@ -438,19 +440,19 @@ module circular_to_circular_flex_adaptor(channel_in, channel_out, h, a = 0, expa
 
 
 module square_to_square_flex_adaptor(channel_in, channel_out, h, a = 0, expand = 10, sections = 10, stl = true) {
-    assert(sections % 2 == 0, "sections count must be even");
-    if(stl) {
-        name = str(
-        "FLEX_square_to_square_flex_adaptor_",
-        square_vent_channel_fun_name(channel_in), "_2_",
-        square_vent_channel_fun_name(channel_out), "_",
-        "h", h, "_",
-        "a", a, "_",
-        "s", sections, "_",
-        "e", expand
-        );
-        stl(name);
-    }
+//    assert(sections % 2 == 0, "sections count must be even");
+//    if(stl) {
+//        name = str(
+//        "FLEX_square_to_square_flex_adaptor_",
+//        square_vent_channel_fun_name(channel_in), "_2_",
+//        square_vent_channel_fun_name(channel_out), "_",
+//        "h", h, "_",
+//        "a", a, "_",
+//        "s", sections, "_",
+//        "e", expand
+//        );
+//        stl(name);
+//    }
 
 
     module channel_cube(outer, size) {
@@ -543,4 +545,56 @@ module square_to_square_flex_adaptor(channel_in, channel_out, h, a = 0, expand =
     translate_z(-(h+expand) / 2)
     rotate([0, 0, a])
     square_vent_channel_model(channel_out, length = expand);
+}
+
+module ellipse(d1, d2, h, $fn=undef) {
+    resize([d1, d2, h])
+        cylinder(d = 1, h = h, center = true, $fn=$fn);
+}
+
+
+function calculate_ellipse_d2_by_circle_d_and_d1(d_in, d_out1) = d_in + ((3.14 * d_in) - (3.14 * d_out1))/3.14;
+
+module circle_to_ellipse_adaptor(d_in, d_out1, d_out2 = undef, length = 30, wall_thickness = 4) {
+
+    d_out2_calced = d_out2 ? d_out2 : calculate_ellipse_d2_by_circle_d_and_d1(d_in, d_out1);
+
+    y_shift = (d_out2_calced - d_in)/2;
+
+    throat_h = 7;
+
+    module shell(d_in, d_out1, d_out2, h) {
+        hull() {
+            translate_z(h / 2)
+            cylinder(d = d_in, h = 0.1, center = true);
+
+            translate([0, y_shift, - h / 2])
+            ellipse(d_out1, d_out2, h = 0.1, $fn=90);
+        }
+    }
+
+    echo(d_in, d_out1, d_out2_calced);
+
+
+    difference() {
+        union() {
+            shell(d_in = d_in + wall_thickness, d_out1 = d_out1 + wall_thickness, d_out2 = d_out2_calced +
+                wall_thickness, h = length);
+
+            translate_z(length / 2 + throat_h/2)
+                cylinder(d = d_in+ wall_thickness, h = throat_h, center = true);
+
+            translate([0, y_shift, - length / 2 - throat_h/2])
+                ellipse(d_out1 + wall_thickness, d_out2_calced + wall_thickness, h = throat_h, $fn=90);
+        }
+        shell(d_in = d_in, d_out1 = d_out1, d_out2 = d_out2_calced, h = length+.01);
+
+        translate_z(length / 2 + throat_h/2)
+            cylinder(d = d_in, h = throat_h+.1, center = true);
+
+        translate([0, y_shift, - length / 2 - throat_h/2])
+            ellipse(d_out1, d_out2_calced, h = throat_h+.1, $fn=90);
+
+    }
+
 }
