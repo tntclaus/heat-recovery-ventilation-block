@@ -132,6 +132,47 @@ module main_assembly() {
 
 }
 
+module vent_channel_tube() {
+    h = 210;
+    hd = 10;
+
+    module wall(h) {
+        difference() {
+            cube([1, 48, h], center = true);
+            for(y = [-50/2+hd : 1.5*hd: 50/2])
+            for(z = [-h/2+hd : 2*hd : h/2])
+            translate([0,y,z])
+            rotate([0,90,0])
+                cylinder(d = hd, h = 10, center = true);
+        }
+    }
+
+    translate_z(-h/2+10)
+    square_vent_channel_model(change_type(square_vent214x48, dw = 4, dh = 3), 10);
+
+    translate_z(5){
+        translate_z(-1)
+        difference() {
+            square_vent_channel_model(square_vent214x48, h - 8);
+            translate_z(-(h-8)/2+1.5) hull(){
+                square_vent_channel_cube_inner(square_vent214x48, 1.);
+                translate_z(-2)
+                square_vent_channel_cube(square_vent214x48, .1);
+            }
+        }
+        for (x = [- 1, 1])
+        translate([x * 75, 0, 0])
+            wall(h-10);
+    }
+}
+
+module vent_channel_assemby() {
+
+}
+
+
+
+vent_channel_tube();
 //if ($preview)
 //    main_assembly();
 
@@ -139,7 +180,7 @@ module main_assembly() {
 //color("red")
 //FLEX_inlet_fan_2_tube_adaptor_stl();
 
-ABS_fan_sleeve_stl();
+//ABS_fan_sleeve_stl();
 
 //fan_outblower_assembly();
 
